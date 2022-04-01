@@ -3,8 +3,12 @@
 
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
+using Ultron.BladeBoard;
+using Ultron.BladeBoard.Abstraction.DataObjects;
 using WebviewAppTest;
 using WebviewAppTest.Data;
+using WpfBlazor.Mocks;
 
 namespace BlazorWpfApp
 {
@@ -20,18 +24,12 @@ namespace BlazorWpfApp
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBlazorWebView();
             serviceCollection.AddSingleton<AppState>(_appState);
-            serviceCollection.AddSingleton<WeatherForecastService>();
+            serviceCollection.AddSingleton<WeatherForecastService>()
+                .AddSingleton<IBladeBoardDriver, MockBladeBoardDriver>()
+                .AddAntDesign();
             Resources.Add("services", serviceCollection.BuildServiceProvider());
 
             InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(
-                owner: this,
-                messageBoxText: $"Current counter value is: {_appState.Counter}",
-                caption: "Counter");
         }
     }
 

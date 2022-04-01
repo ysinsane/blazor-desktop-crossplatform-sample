@@ -1,0 +1,223 @@
+﻿@page "/BladeBoardDetail"
+@using Ultron.BladeBoard.Abstraction
+@using Ultron.BladeBoard.Abstraction.DataObjects
+@using Microsoft.AspNetCore.Components
+@inject IBladeBoardDriver _bladeBoardDriver
+<h1>测刀板控制</h1>
+
+<Row>
+    <Col Span="24">
+        
+        <Divider>配置Pga</Divider>
+        <table class="table">
+            <tr>
+                <th>通道</th>
+                <th>AC</th>
+                <th>DC</th>
+            </tr>
+            @foreach (var (key, value) in _pgaParameters)
+            {
+                <tr>
+                    <td>@key</td>
+                    <td><input @bind="value.AcValue"/></td>
+                    <td><input @bind="value.DcValue"/></td>
+                </tr>
+            }
+        </table>
+        <Button @onclick="SetPga" Type="primary">Set Pga</Button>
+    </Col>  
+    <Col Span="24">
+        <Divider>读取通道电压 和检测结果</Divider>
+        <table class="table">
+            <tr>
+                <th>通道</th>
+                <th>实际电压</th>
+                <th>挡位</th>
+                <th>结果</th>
+                <th>阈值</th>
+            </tr>
+            @foreach (var (ke, value) in _lightSensorVoltages)
+            {
+                <tr>
+                    <td style="width: 100px">@ke</td>
+                    <td><Input @bind-Value="value.ActualVoltage" /></td>
+                    <td style="width: 300px">
+                        <Progress Percent=@(Math.Round(value.Percentage*100,3)) />
+                    </td>
+                    <td>@_sensorCheckResults[ke]</td>
+                    <td>
+                        <Input @bind-Value="_sensorThresholds[ke]" />
+                    </td>
+                </tr>
+            }
+        </table>
+        <Button @onclick="StartRefresh" Type="primary">Refresh</Button>
+        <Button @onclick="SetThresholds" Type="primary">设置阈值</Button>
+    </Col>   
+</Row>
+
+<Row Gutter="16">
+    <Col Span="12">
+        <Divider>设置BBD结果</Divider>
+        <table class="table">
+            <tr>
+                <th>通道</th>
+                <th>全损</th>
+                <th>半损</th>
+            </tr>
+            @foreach (var (ke, value) in _bbdResult)
+            {
+                <tr>
+                    <td>@ke:</td>
+                    <td>
+                        <div>
+                            <Checkbox Checked="@value.FullBreakage" Disabled="true" />
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <Checkbox Checked="@value.PartialBreakage" Disabled="true" />
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>
+        <Button @onclick="GetBbdResults" Type="primary">Refresh</Button>
+    </Col>
+    <Col Span="12">
+        <Divider>设置测高开关</Divider>
+        <table class="table">
+            <tr>
+                <th>通道</th>
+                <th>是否开启</th>
+                <th>挡位</th>
+            </tr>
+            @foreach (var (ke, value) in _setupSwitches)
+            {
+                <tr>
+                    <td>@ke:</td>
+                    <td>
+                        <div>
+                            <Checkbox Checked="@value.Enabled" />
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <div>
+                                <RadioGroup @bind-Value="@value.SetupMethod">
+                                    <Radio Value="@SetupMethod.Ncs">NCS</Radio>
+                                    <Radio Value="@SetupMethod.CsAdc">CS</Radio>
+                                </RadioGroup>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>
+        <Button @onclick="SetSetupSwitch" Type="primary">设置测高</Button>
+    </Col>
+</Row>
+@code {
+
+
+    private readonly Dictionary<int, PgaParameters> _pgaParameters = new();
+    private readonly Dictionary<int, LightSensorVoltage> _lightSensorVoltages = new();
+    private readonly Dictionary<int, double> _sensorThresholds = new();
+    private readonly Dictionary<int, bool> _sensorCheckResults = new();
+    private readonly Dictionary<int, BbdResult> _bbdResult = new();
+    private readonly Dictionary<int, SetupSettings> _setupSwitches = new();
+
+    private void SetPga()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            _bladeBoardDriver.SetPga(i, _pgaParameters[i].DcValue, _pgaParameters[i].AcValue);
+        }
+    }
+
+    private void SetThresholds()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            _bladeBoardDriver.SetSensorThreshold(i, _sensorThresholds[i]);
+        }
+    }
+
+    private void StartRefresh()
+    {
+        GetSensorVoltages();
+    }
+
+    private void GetSensorVoltages()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            _lightSensorVoltages[i] = _bladeBoardDriver.GetLightIntensity(i);
+        }
+    }
+
+    private void SetSetupSwitch()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            _bladeBoardDriver.SwitchSetup(i, _setupSwitches[i].Enabled, _setupSwitches[i].SetupMethod == SetupMethod.CsAdc);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        ReadPgaParams();
+        GetSensorVoltages();
+        GetSensorThresholds();
+        GetSensorCheckResults();
+        GetBbdResults();
+        GetSetupSwitches();
+    }
+
+    private void ReadPgaParams()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            _pgaParameters[i] = _bladeBoardDriver.ReadPagParameters(i);
+        }
+    }
+
+    private void GetSensorCheckResults()
+    {
+        // 读取Sensor判定结果
+        for (int i = 0; i < 4; i++)
+        {
+            _sensorCheckResults[i] = _bladeBoardDriver.GetSensorCheckResult(i);
+        }
+    }
+
+    private void GetSetupSwitches()
+    {
+        // 读取测高的开关
+        for (int i = 0; i < 2; i++)
+        {
+            _setupSwitches[i] = _bladeBoardDriver.ReadSetupSwitchStatus(i);
+        }
+    }
+
+    private void GetBbdResults()
+    {
+        // 读取BBD判定结果
+        for (int i = 0; i < 2; i++)
+        {
+            _bbdResult[i] = _bladeBoardDriver.GetBbdResult(i);
+        }
+    }
+
+    private void GetSensorThresholds()
+    {
+        // 读取阀门阈值
+        for (int i = 0; i < 4; i++)
+        {
+            _sensorThresholds[i] = _bladeBoardDriver.ReadSensorThreshold(i);
+        }
+    }
+
+}

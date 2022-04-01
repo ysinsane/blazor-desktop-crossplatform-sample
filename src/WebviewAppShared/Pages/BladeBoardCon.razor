@@ -1,0 +1,56 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@using Ultron.BladeBoard.Abstraction.DataObjects
+@inject IBladeBoardDriver _bladeBoardDriver
+@inject NavigationManager _navigationManager
+<h3>BladeBoardCon</h3>
+<Form Loading="loading" Model="@_configModel" 
+      LabelColSpan="8"
+      WrapperColSpan="16"
+      OnFinish="OnFinish" 
+      OnFinishFailed="OnFinishFailed">
+    <FormItem Label="端口数字" >
+        <Input @bind-Value="@context.Port"/>
+    </FormItem>
+    <FormItem Label="波特率">
+        <Input @bind-Value="@context.BaudRate" />
+    </FormItem>
+    <FormItem Label="通讯Sleep间隔">
+        <Input @bind-Value="@context.TimeInterval" />
+    </FormItem>
+    <FormItem WrapperColOffset="8" WrapperColSpan="16">
+        <Button Type="@ButtonType.Primary" HtmlType="submit">
+            Submit
+        </Button>
+    </FormItem>
+</Form>
+@code {
+    public class ConfigModel
+    {
+        [Required]
+        public int Port { get; set; }
+        
+        [Required]
+        public int BaudRate { get; set; }
+
+        [Required]
+        public int TimeInterval { get; set; }
+    }
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+    private void OnFinish()
+    {
+        _bladeBoardDriver.Connect(new ConnectParameter()
+        {
+            BaudRate = _configModel.BaudRate, CommunicationInterval = _configModel.TimeInterval, ComPort = _configModel.Port
+        });
+        NavigationManager.NavigateTo("/BladeBoardDetail");
+    }
+
+    private void OnFinishFailed()
+    {
+        
+    }
+    private bool loading = false;
+    private ConfigModel _configModel = new();
+}
