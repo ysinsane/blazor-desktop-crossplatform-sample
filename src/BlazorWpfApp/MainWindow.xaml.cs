@@ -26,7 +26,7 @@ namespace BlazorWpfApp
             serviceCollection.AddSingleton<AppState>(_appState);
             serviceCollection.AddSingleton<WeatherForecastService>()
                 .AddSingleton<IBladeBoardDriver, MockBladeBoardDriver>()
-                .AddAntDesign();
+                .AddMudServices();
             Resources.Add("services", serviceCollection.BuildServiceProvider());
 
             InitializeComponent();

@@ -1,0 +1,47 @@
+﻿@namespace WebviewAppShared
+
+<MudButton Class="@Class" Disabled="@_processing" OnClick="ProcessSomething" Variant="Variant.Filled" Color="Color.Primary">
+    @if (_processing)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+    }
+    <MudText>@ChildContent</MudText>
+</MudButton>
+@code {
+    /// <summary>
+    /// Child content of component.
+    /// </summary>
+    [Parameter]
+    [Category(CategoryTypes.Button.Behavior)]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
+    [Inject]
+    private ISnackbar Snackbar { get; set; }
+    private bool _processing = false;
+
+    protected  async Task ProcessSomething(MouseEventArgs ev)
+    {
+        _processing = true;
+        bool error = false;
+        try
+        {
+            await OnClick.InvokeAsync(ev);
+        }
+        catch (Exception e)
+        {
+            error = true;
+            Snackbar.Add($"执行失败。错误:{e.Message}", Severity.Error);
+        }
+        if(!error)
+            Snackbar.Add($"执行成功", Severity.Success);
+
+        _processing = false;
+    }
+
+
+}

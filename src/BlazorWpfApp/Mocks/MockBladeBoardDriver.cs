@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Ultron.BladeBoard.Abstraction;
 using Ultron.BladeBoard.Abstraction.DataObjects;
 
@@ -33,7 +30,7 @@ namespace WpfBlazor.Mocks
             return new SetupSettings
             {
                 Enabled = new Random().Next() % 2 == 0,
-                SetupMethod = (SetupMethod) (new Random().Next() % 2)
+                SetupMethod = (SetupMethod)(new Random().Next() % 2)
             };
         }
 
@@ -56,6 +53,7 @@ namespace WpfBlazor.Mocks
         /// <inheritdoc />
         public PgaParameters ReadPagParameters(int address)
         {
+            Thread.Sleep(100);
             return new PgaParameters { AcValue = new Random().Next(3, 10), DcValue = new Random().Next(3, 10) };
         }
 
@@ -67,25 +65,30 @@ namespace WpfBlazor.Mocks
         /// <inheritdoc />
         public double ReadSensorThreshold(int address)
         {
+            Thread.Sleep(100);
             return new Random().NextDouble() * 5;
         }
 
         /// <inheritdoc />
         public LightSensorVoltage GetLightIntensity(int address)
         {
+            Thread.Sleep(100);
+            var per = new Random().NextDouble();
             return new LightSensorVoltage
-            { ActualVoltage = new Random().NextDouble() * 5, Percentage = new Random().NextDouble() };
+            { ActualVoltage = per * 5, Percentage = per };
         }
 
         /// <inheritdoc />
         public bool GetSensorCheckResult(int address)
         {
+            Thread.Sleep(100);
             return new Random().Next() % 2 == 0;
         }
 
         /// <inheritdoc />
         public BbdResult GetBbdResult(int address)
         {
+            Thread.Sleep(100);
             return new BbdResult()
             {
                 FullBreakage = new Random().Next() % 2 == 0,
@@ -101,7 +104,11 @@ namespace WpfBlazor.Mocks
         /// <inheritdoc />
         public void Connect(ConnectParameter connectParameter)
         {
-            
+            Thread.Sleep(100);
+            if (connectParameter.ComPort == 4)
+            {
+                throw new Exception("测试连接失败");
+            }
         }
     }
 }

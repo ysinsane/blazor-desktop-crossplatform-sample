@@ -4,53 +4,72 @@
 @inject IBladeBoardDriver _bladeBoardDriver
 @inject NavigationManager _navigationManager
 <h3>BladeBoardCon</h3>
-<Form Loading="loading" Model="@_configModel" 
-      LabelColSpan="8"
-      WrapperColSpan="16"
-      OnFinish="OnFinish" 
-      OnFinishFailed="OnFinishFailed">
-    <FormItem Label="端口数字" >
-        <Input @bind-Value="@context.Port"/>
-    </FormItem>
-    <FormItem Label="波特率">
-        <Input @bind-Value="@context.BaudRate" />
-    </FormItem>
-    <FormItem Label="通讯Sleep间隔">
-        <Input @bind-Value="@context.TimeInterval" />
-    </FormItem>
-    <FormItem WrapperColOffset="8" WrapperColSpan="16">
-        <Button Type="@ButtonType.Primary" HtmlType="submit">
-            Submit
-        </Button>
-    </FormItem>
-</Form>
+<EditForm Model="@_configModel" OnValidSubmit="OnFinish">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="端口数字" HelperText="不要Com"
+                                  @bind-Value="_configModel.Port" For="@(() => _configModel.Port)" />
+                    <MudTextField Label="波特率" Class="mt-3"
+                                  @bind-Value="_configModel.BaudRate" For="@(() => _configModel.BaudRate)" />
+                    <MudTextField Label="通信间隔" HelperText="Sleep时间，毫秒" Class="mt-3"
+                                  @bind-Value="_configModel.TimeInterval" For="@(() => _configModel.TimeInterval)" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">连接</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+    </MudGrid>
+    <MudOverlay Visible="_loading" DarkBackground="true" Absolute="true">
+        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+    </MudOverlay>
+</EditForm>
 @code {
     public class ConfigModel
     {
         [Required]
-        public int Port { get; set; }
-        
+        [Range(1, 20)]
+        public int Port { get; set; } = 5;
+
         [Required]
         public int BaudRate { get; set; }
 
         [Required]
-        public int TimeInterval { get; set; }
-    }
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
-    private void OnFinish()
-    {
-        _bladeBoardDriver.Connect(new ConnectParameter()
-        {
-            BaudRate = _configModel.BaudRate, CommunicationInterval = _configModel.TimeInterval, ComPort = _configModel.Port
-        });
-        NavigationManager.NavigateTo("/BladeBoardDetail");
+        public int TimeInterval { get; set; } = 50;
     }
 
-    private void OnFinishFailed()
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+    [Inject]
+    private ISnackbar Snackbar { get; set; }
+    private async Task OnFinish()
     {
-        
+        _loading = true;
+        try
+        {
+            await Task.Run(() =>
+            {
+                _bladeBoardDriver.Connect(new ConnectParameter()
+                {
+                    BaudRate = _configModel.BaudRate,
+                    CommunicationInterval = _configModel.TimeInterval,
+                    ComPort = _configModel.Port
+                });
+            });
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"连接串口错误：{e.Message}", Severity.Error);
+            _loading = false;
+            StateHasChanged();
+            return;
+        }
+        NavigationManager.NavigateTo("/BladeBoardDetail");
     }
-    private bool loading = false;
-    private ConfigModel _configModel = new();
+    private bool _loading;
+    private readonly ConfigModel _configModel = new();
 }

@@ -1,131 +1,163 @@
 ﻿@page "/BladeBoardDetail"
+@implements IDisposable
 @using Ultron.BladeBoard.Abstraction
 @using Ultron.BladeBoard.Abstraction.DataObjects
 @using Microsoft.AspNetCore.Components
 @inject IBladeBoardDriver _bladeBoardDriver
-<h1>测刀板控制</h1>
+<MudContainer Class="ml-auto mt-3 mb-3" MaxWidth="MaxWidth.Large">
+    <h1>测刀板控制</h1>
+    <MudGrid>
+        <MudItem xs="3">
+            <h2 Class="ml-auto mt-3 mb-3">配置Pga</h2>
+            <MudSimpleTable>
+                <thead>
+                <tr>
+                    <th>通道</th>
+                    <th>AC</th>
+                    <th>DC</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var (key, value) in _pgaParameters)
+                {
+                    <tr>
+                        <td>@key</td>
 
-<Row>
-    <Col Span="24">
-        
-        <Divider>配置Pga</Divider>
-        <table class="table">
-            <tr>
-                <th>通道</th>
-                <th>AC</th>
-                <th>DC</th>
-            </tr>
-            @foreach (var (key, value) in _pgaParameters)
-            {
-                <tr>
-                    <td>@key</td>
-                    <td><input @bind="value.AcValue"/></td>
-                    <td><input @bind="value.DcValue"/></td>
-                </tr>
-            }
-        </table>
-        <Button @onclick="SetPga" Type="primary">Set Pga</Button>
-    </Col>  
-    <Col Span="24">
-        <Divider>读取通道电压 和检测结果</Divider>
-        <table class="table">
-            <tr>
-                <th>通道</th>
-                <th>实际电压</th>
-                <th>挡位</th>
-                <th>结果</th>
-                <th>阈值</th>
-            </tr>
-            @foreach (var (ke, value) in _lightSensorVoltages)
-            {
-                <tr>
-                    <td style="width: 100px">@ke</td>
-                    <td><Input @bind-Value="value.ActualVoltage" /></td>
-                    <td style="width: 300px">
-                        <Progress Percent=@(Math.Round(value.Percentage*100,3)) />
-                    </td>
-                    <td>@_sensorCheckResults[ke]</td>
-                    <td>
-                        <Input @bind-Value="_sensorThresholds[ke]" />
-                    </td>
-                </tr>
-            }
-        </table>
-        <Button @onclick="StartRefresh" Type="primary">Refresh</Button>
-        <Button @onclick="SetThresholds" Type="primary">设置阈值</Button>
-    </Col>   
-</Row>
+                        <td style="width: 100px">
+                            <MudInput @bind-Value="value.AcValue"/>
+                        </td>
+                        <td style="width: 100px">
+                            <MudInput @bind-Value="value.DcValue"/>
+                        </td>
+                    </tr>
+                }
+                </tbody>
 
-<Row Gutter="16">
-    <Col Span="12">
-        <Divider>设置BBD结果</Divider>
-        <table class="table">
-            <tr>
-                <th>通道</th>
-                <th>全损</th>
-                <th>半损</th>
-            </tr>
-            @foreach (var (ke, value) in _bbdResult)
-            {
+            </MudSimpleTable>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="SetPga">设置放大器</SpinButton>
+
+        </MudItem>
+        <MudItem xs="9">
+            <h2 Class="ml-auto mt-3 mb-3">通道电压/检测结果</h2>
+            <MudSimpleTable>
+                <thead>
                 <tr>
-                    <td>@ke:</td>
-                    <td>
-                        <div>
-                            <Checkbox Checked="@value.FullBreakage" Disabled="true" />
-                        </div>
-                    </td>
-                    <td>
-                        <div>
-                            <Checkbox Checked="@value.PartialBreakage" Disabled="true" />
-                        </div>
-                    </td>
+                    <th>通道</th>
+                    <th>实际电压</th>
+                    <th>实际电压百分比</th>
+                    <th>结果</th>
+                    <th>阈值</th>
                 </tr>
-            }
-        </table>
-        <Button @onclick="GetBbdResults" Type="primary">Refresh</Button>
-    </Col>
-    <Col Span="12">
-        <Divider>设置测高开关</Divider>
-        <table class="table">
-            <tr>
-                <th>通道</th>
-                <th>是否开启</th>
-                <th>挡位</th>
-            </tr>
-            @foreach (var (ke, value) in _setupSwitches)
-            {
+                </thead>
+
+                <tbody>
+                @foreach (var (key, value) in _lightSensorVoltages)
+                {
+                    <tr>
+                        <td style="width: 100px">@key</td>
+                        <td>
+                            <MudInput Value="@value.ActualVoltage"/>
+                        </td>
+                        <td style="width: 300px">
+                            <MudProgressLinear Color="Color.Primary" Value=@(Math.Round(value.Percentage * 100, 3))/>
+                        </td>
+                        <td>@_sensorCheckResults[key]</td>
+                        <td>
+                            <MudInput @bind-Value="_sensorThresholds[key]"/>
+
+                        </td>
+                    </tr>
+                }
+                </tbody>
+
+            </MudSimpleTable>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="StartRefresh">开启刷新</SpinButton>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="()=>_refreshVoltages=false">停止刷新</SpinButton>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="SetThresholds">设置阈值</SpinButton>
+
+        </MudItem>
+    </MudGrid>
+    <MudGrid>
+        <MudItem xs="6">
+            <h2 Class="ml-auto mt-3 mb-3">BBD结果</h2>
+            <MudSimpleTable>
+                <thead>
                 <tr>
-                    <td>@ke:</td>
-                    <td>
-                        <div>
-                            <Checkbox Checked="@value.Enabled" />
-                        </div>
-                    </td>
-                    <td>
-                        <div>
+                    <th>通道</th>
+                    <th>全损</th>
+                    <th>半损</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var (ke, value) in _bbdResult)
+                {
+                    <tr>
+                        <td>@ke:</td>
+                        <td>
                             <div>
-                                <RadioGroup @bind-Value="@value.SetupMethod">
-                                    <Radio Value="@SetupMethod.Ncs">NCS</Radio>
-                                    <Radio Value="@SetupMethod.CsAdc">CS</Radio>
-                                </RadioGroup>
+                                <MudCheckBox @bind-Checked="@value.FullBreakage" Disabled="true"></MudCheckBox>
                             </div>
-                        </div>
-                    </td>
+                        </td>
+                        <td>
+                            <div>
+                                <MudCheckBox @bind-Checked="@value.PartialBreakage" Disabled="true"></MudCheckBox>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </MudSimpleTable>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="GetBbdResults">获取BBD结果</SpinButton>
+
+        </MudItem>
+
+        <MudItem xs="6">
+            <h2 Class="ml-auto mt-3 mb-3">测高开关</h2>
+            <MudSimpleTable>
+                <thead>
+                <tr>
+                    <th>通道</th>
+                    <th>是否开启</th>
+                    <th>挡位</th>
                 </tr>
-            }
-        </table>
-        <Button @onclick="SetSetupSwitch" Type="primary">设置测高</Button>
-    </Col>
-</Row>
+                </thead>
+                <tbody>
+                @foreach (var (key, value) in _setupSwitches)
+                {
+                    <tr>
+                        <td>@key</td>
+                        <td>
+                            <div>
+                                <MudCheckBox @bind-Checked="@value.Enabled"></MudCheckBox>
+
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <MudRadioGroup @bind-SelectedOption="@value.SetupMethod">
+                                    <MudRadio Option="@SetupMethod.Ncs" Color="Color.Primary" Dense="true">NCS</MudRadio>
+                                    <MudRadio Option="@SetupMethod.CsAdc" Color="Color.Secondary" Dense="false">CS</MudRadio>
+                                </MudRadioGroup>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </MudSimpleTable>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="SetSetupSwitch">设置测高</SpinButton>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
 @code {
-
-
     private readonly Dictionary<int, PgaParameters> _pgaParameters = new();
     private readonly Dictionary<int, LightSensorVoltage> _lightSensorVoltages = new();
     private readonly Dictionary<int, double> _sensorThresholds = new();
     private readonly Dictionary<int, bool> _sensorCheckResults = new();
     private readonly Dictionary<int, BbdResult> _bbdResult = new();
     private readonly Dictionary<int, SetupSettings> _setupSwitches = new();
+    private bool _refreshVoltages;
 
     private void SetPga()
     {
@@ -143,9 +175,16 @@
         }
     }
 
-    private void StartRefresh()
+    private async Task StartRefresh()
     {
-        GetSensorVoltages();
+        if(_refreshVoltages)throw new Exception("已经在执行刷新了");
+        _refreshVoltages = true;
+        while (_refreshVoltages)
+        {
+            await Task.Delay(500);
+            GetSensorVoltages();
+            StateHasChanged();
+        }
     }
 
     private void GetSensorVoltages()
@@ -153,6 +192,7 @@
         for (int i = 0; i < 4; i++)
         {
             _lightSensorVoltages[i] = _bladeBoardDriver.GetLightIntensity(i);
+            _lightSensorVoltages[i].ActualVoltage = Math.Round(_lightSensorVoltages[i].ActualVoltage, 6);
         }
     }
 
@@ -163,7 +203,7 @@
             _bladeBoardDriver.SwitchSetup(i, _setupSwitches[i].Enabled, _setupSwitches[i].SetupMethod == SetupMethod.CsAdc);
         }
     }
-
+    public void Dispose() => _refreshVoltages = false;
     /// <inheritdoc />
     protected override void OnInitialized()
     {

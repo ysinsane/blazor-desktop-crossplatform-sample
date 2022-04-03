@@ -6,12 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Blazor WPF app</title>
     <base href="/" />
-    <link rel="stylesheet" href="_content/WebviewAppShared/css/bootstrap/bootstrap.min.css" />
-    <link href="_content/WebviewAppShared/css/site.css" rel="stylesheet" />
-    <link href="BlazorWpfApp.styles.css" rel="stylesheet" />
-    <link href="_content/AntDesign/css/ant-design-blazor.css" rel="stylesheet" />
-    <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
-
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="MudBlazor.min.css" rel="stylesheet" />
     <!-- for water demo page -->
     <script src="_content/WebviewAppShared/water/OES_texture_float_linear-polyfill.js"></script>
     <script src="_content/WebviewAppShared/water/lightgl.js"></script>
@@ -21,7 +17,7 @@
     <script src="_content/WebviewAppShared/water/main.js"></script>
 </head>
 
-<body>
+<body style="width: 1280px;height: 1024px">
     <!-- water demo -->
     <img id="tiles" style="display: none" src="_content/WebviewAppShared/water/tiles.jpg">
     <img id="xneg" style="display: none" src="_content/WebviewAppShared/water/xneg.jpg">
@@ -36,7 +32,7 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
-
+    <script src="MudBlazor.min.js"></script>
     <script src="_framework/blazor.webview.js"></script>
 </body>
 
