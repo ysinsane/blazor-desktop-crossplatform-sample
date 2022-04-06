@@ -53,6 +53,7 @@
         {
             await Task.Run(() =>
             {
+                if(_bladeBoardDriver.IsConnected) return;
                 _bladeBoardDriver.Connect(new ConnectParameter()
                 {
                     BaudRate = _configModel.BaudRate,

@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="6.0.200-preview.14.5099" />
-		<PackageReference Include="Ultron.BladeBoard" Version="1.0.1" />
+		<PackageReference Include="Ultron.BladeBoard" Version="1.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>

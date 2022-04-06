@@ -1,0 +1,40 @@
+﻿@page "/main"
+<CommonContent>
+    <MainLeft>
+        <div style="display: flex;flex-wrap: wrap">
+            @foreach (var navButtonParam in _navButtonParams)
+            {
+                <NavButton Class="ml-10 mt-12"
+                       Icon="@navButtonParam.Icon"
+                       Code="@navButtonParam.Code"
+                       Title="@navButtonParam.Title"
+                       Href="@navButtonParam.Href">
+
+                </NavButton>
+            }
+        </div>
+
+    </MainLeft>
+</CommonContent>
+
+@code {
+
+    class NavButtonParam
+    {
+        public string Code { get; init; }
+        public string Title { get; init; }
+        public string Icon { get; init; }
+        public string Href { get; init; }
+    }
+
+    private readonly List<NavButtonParam> _navButtonParams = new List<NavButtonParam>
+    {
+        new() {Code = "F1", Icon = "spite", Title = "Full Auto", Href = "/BladeBoardDetail"},
+        new() {Code = "F2", Icon = "ManualOperation", Title = "Manual Operation", Href = "BladeBoard"},
+        new() {Code = "F3", Icon = "DeviceData", Title = "Device Data"},
+        new() {Code = "F4", Icon = "BladeMaintenance", Title = "Blade Maintenance"},
+        new() {Code = "F5", Icon = "OperatorMaintenance", Title = "Operator Maintenance"},
+        new() {Code = "F6", Icon = "MachineMaintenance", Title = "Machine Maintenance"},
+        new() {Code = "F7", Icon = "EngineeringMaintenance", Title = "Engineering Maintenance"}
+    };
+}

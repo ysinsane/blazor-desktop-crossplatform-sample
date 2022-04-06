@@ -1,7 +1,72 @@
-﻿<div>
-    <button>1212</button>
+﻿@namespace WebviewAppShared
+
+<div Class="@Class">
+    <NavLink href="@Href">
+        <div class="nav-button">
+            <img src="@($"icons/{Icon}.svg")" />
+            <span>@Title</span>
+            <span>@Code</span>
+        </div>
+    </NavLink>
+
+    @*<MudIconButton Class="nav-button" Icon="@MySvg.F1" Disabled="@_processing" OnClick="ProcessSomething" Size="Size.Large" Style="@($"color:{Theme.Palette.Dark};width:180px;height:180px")">
+        @if (_processing)
+        {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+        }
+        <MudText>@ChildContent</MudText>
+        </MudIconButton>*@
 </div>
 
 @code {
+    
+
+    private MudTheme Theme = new MudTheme();
+    /// <summary>
+    /// Child content of component.
+    /// </summary>
+    [Parameter]
+    [Category(CategoryTypes.Button.Behavior)]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "导航按钮描述";
+
+    [Parameter]
+    public string Code { get; set; } = "代码";
+    [Parameter]
+    public string Icon { get; set; } = "代码";
+
+    [Parameter]
+    public string Href { get; set; } = "/";
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
+    [Inject]
+    private ISnackbar Snackbar { get; set; }
+    private bool _processing = false;
+
+    protected async Task ProcessSomething(MouseEventArgs ev)
+    {
+        _processing = true;
+        bool error = false;
+        try
+        {
+            await OnClick.InvokeAsync(ev);
+        }
+        catch (Exception e)
+        {
+            error = true;
+            Snackbar.Add($"执行失败。错误:{e.Message}", Severity.Error);
+        }
+        if (!error)
+            Snackbar.Add($"执行成功", Severity.Success);
+
+        _processing = false;
+    }
+
 
 }

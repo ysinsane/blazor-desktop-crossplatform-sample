@@ -3,7 +3,7 @@ using System.Threading;
 using Ultron.BladeBoard.Abstraction;
 using Ultron.BladeBoard.Abstraction.DataObjects;
 
-namespace WpfBlazor.Mocks
+namespace BlazorWpfApp.Mocks
 {
     internal class MockBladeBoardDriver : IBladeBoardDriver
     {
@@ -42,7 +42,7 @@ namespace WpfBlazor.Mocks
         /// <inheritdoc />
         public int ReadEccentricity(int axIdx)
         {
-            throw new NotImplementedException();
+            return new Random().Next();
         }
 
         /// <inheritdoc />
@@ -89,7 +89,7 @@ namespace WpfBlazor.Mocks
         public BbdResult GetBbdResult(int address)
         {
             Thread.Sleep(100);
-            return new BbdResult()
+            return new BbdResult
             {
                 FullBreakage = new Random().Next() % 2 == 0,
                 PartialBreakage = new Random().Next() % 2 == 0
@@ -110,5 +110,8 @@ namespace WpfBlazor.Mocks
                 throw new Exception("测试连接失败");
             }
         }
+
+        /// <inheritdoc />
+        public bool IsConnected => false;
     }
 }

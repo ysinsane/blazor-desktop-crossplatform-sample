@@ -7,7 +7,10 @@
 .main {
     flex: 1;
 }
-
+h1.test {
+    color: brown;
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+}
 .sidebar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
