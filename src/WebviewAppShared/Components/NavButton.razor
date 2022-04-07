@@ -3,9 +3,9 @@
 <div Class="@Class">
     <NavLink href="@Href">
         <div class="nav-button">
-            <img src="@($"icons/{Icon}.svg")" />
-            <span>@Title</span>
             <span>@Code</span>
+            <img style="text-align: center" src="@($"icons/{Icon}.svg")" />
+            <h3 style="text-align: center; margin-top: 6px; line-height: normal">@Title</h3>
         </div>
     </NavLink>
 
@@ -19,7 +19,7 @@
 </div>
 
 @code {
-    
+
 
     private MudTheme Theme = new MudTheme();
     /// <summary>
