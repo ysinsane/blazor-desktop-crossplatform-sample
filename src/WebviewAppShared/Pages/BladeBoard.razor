@@ -58,7 +58,7 @@
                         <td>
                             <MudInput Value="@value.ActualVoltage"/>
                         </td>
-                        <td style="width: 300px">
+                        <td style="width: 500px">
                             <MudProgressLinear Color="Color.Primary" Value=@(Math.Round(value.Percentage * 100, 3))/>
                         </td>
                         <td>@_sensorCheckResults[key]</td>
@@ -146,6 +146,7 @@
                 </tbody>
             </MudSimpleTable>
             <SpinButton Class="ml-auto mt-3 mb-3" OnClick="SetSetupSwitch">设置测高</SpinButton>
+            <SpinButton Class="ml-auto mt-3 mb-3" OnClick="GetSetupSwitches">读取设定</SpinButton>
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -183,6 +184,7 @@
         {
             await Task.Delay(500);
             GetSensorVoltages();
+            GetSensorCheckResults();
             StateHasChanged();
         }
     }
@@ -256,7 +258,7 @@
         // 读取阀门阈值
         for (int i = 0; i < 4; i++)
         {
-            _sensorThresholds[i] = _bladeBoardDriver.ReadSensorThreshold(i);
+            _sensorThresholds[i] = Math.Round(_bladeBoardDriver.ReadSensorThreshold(i),4);
         }
     }
 

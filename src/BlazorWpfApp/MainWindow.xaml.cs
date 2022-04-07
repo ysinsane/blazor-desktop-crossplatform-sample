@@ -6,6 +6,7 @@ using BlazorWpfApp.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using Ultron.BladeBoard;
+using Ultron.BladeBoard.Abstraction;
 using Ultron.BladeBoard.Abstraction.DataObjects;
 using WebviewAppTest;
 using WebviewAppTest.Data;
@@ -25,7 +26,7 @@ namespace BlazorWpfApp
             serviceCollection.AddBlazorWebView();
             serviceCollection.AddSingleton<AppState>(_appState);
             serviceCollection.AddSingleton<WeatherForecastService>()
-                .AddSingleton<IBladeBoardDriver, MockBladeBoardDriver>()
+                .AddSingleton<IBladeBoardDriver, BladeBoardDriver>()
                 .AddMudServices();
             Resources.Add("services", serviceCollection.BuildServiceProvider());
 

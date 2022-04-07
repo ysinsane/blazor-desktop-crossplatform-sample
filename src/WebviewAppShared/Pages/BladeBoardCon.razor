@@ -1,9 +1,12 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
+@using Ultron.BladeBoard.Abstraction
 @using Ultron.BladeBoard.Abstraction.DataObjects
 @inject IBladeBoardDriver _bladeBoardDriver
 @inject NavigationManager _navigationManager
-<h3>BladeBoardCon</h3>
+<div style="margin: 10px">
+    <h2> 打开测刀板串口</h2>
+</div>
 <EditForm Model="@_configModel" OnValidSubmit="OnFinish">
     <DataAnnotationsValidator />
     <MudGrid>
@@ -36,7 +39,7 @@
         public int Port { get; set; } = 5;
 
         [Required]
-        public int BaudRate { get; set; }
+        public int BaudRate { get; set; } = 9600;
 
         [Required]
         public int TimeInterval { get; set; } = 50;
@@ -53,13 +56,13 @@
         {
             await Task.Run(() =>
             {
-                if(_bladeBoardDriver.IsConnected) return;
+                if (_bladeBoardDriver.IsConnected) return;
                 _bladeBoardDriver.Connect(new ConnectParameter()
-                {
-                    BaudRate = _configModel.BaudRate,
-                    CommunicationInterval = _configModel.TimeInterval,
-                    ComPort = _configModel.Port
-                });
+                    {
+                        BaudRate = _configModel.BaudRate,
+                        CommunicationInterval = _configModel.TimeInterval,
+                        ComPort = _configModel.Port
+                    });
             });
         }
         catch (Exception e)
