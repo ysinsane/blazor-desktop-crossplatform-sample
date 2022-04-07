@@ -1,6 +1,6 @@
 using System;
 
-namespace WebviewAppTest.Data
+namespace WebviewAppShared.Data
 {
     public class WeatherForecast
     {

@@ -1,6 +1,7 @@
 ﻿@page "/fetchdata"
+@using WebviewAppShared.Data
 
-@inject WebviewAppTest.Data.WeatherForecastService ForecastService
+@inject WeatherForecastService ForecastService
 
 <h1>Weather forecast</h1>
 
@@ -36,7 +37,7 @@ else
 }
 
 @code {
-    private WebviewAppTest.Data.WeatherForecast[] forecasts;
+    private WeatherForecast[] forecasts;
 
     protected override async Task OnInitializedAsync()
     {

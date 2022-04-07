@@ -8,8 +8,7 @@ using MudBlazor.Services;
 using Ultron.BladeBoard;
 using Ultron.BladeBoard.Abstraction;
 using Ultron.BladeBoard.Abstraction.DataObjects;
-using WebviewAppTest;
-using WebviewAppTest.Data;
+using WebviewAppShared.Data;
 
 namespace BlazorWpfApp
 {
@@ -26,7 +25,7 @@ namespace BlazorWpfApp
             serviceCollection.AddBlazorWebView();
             serviceCollection.AddSingleton<AppState>(_appState);
             serviceCollection.AddSingleton<WeatherForecastService>()
-                .AddSingleton<IBladeBoardDriver, BladeBoardDriver>()
+                .AddSingleton<IBladeBoardDriver, MockBladeBoardDriver>()
                 .AddMudServices();
             Resources.Add("services", serviceCollection.BuildServiceProvider());
 
